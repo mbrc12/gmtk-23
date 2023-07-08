@@ -17,6 +17,7 @@ export class InitScene extends Phaser.Scene {
     
     create() {
         this.input.once("pointerdown", () => {
+            this.input.mouse?.requestPointerLock()
             this.scene.launch(MAIN_SCENE)
             this.scene.stop()
         })

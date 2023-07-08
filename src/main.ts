@@ -2,9 +2,11 @@ import { BG_COLOR, HEIGHT, WIDTH } from './globals';
 // import Main from './scenes/main';
 
 import { Game, WEBGL } from 'phaser';
-import ECSTest from './scenes/ecstest';
+// import ECSTest from './scenes/ecstest';
 import { PauseScene } from './scenes/pause';
 import { InitScene } from './scenes/init';
+import MainGame from './scenes/game';
+import { NinePatchPlugin } from '@koreez/phaser3-ninepatch';
 // import TiledTest from './scenes/tiled-test';
 
 
@@ -19,13 +21,13 @@ const config = {
     width: WIDTH,
     height: HEIGHT,
     backgroundColor: BG_COLOR,
-    autoCenter: Phaser.Scale.CENTER_BOTH,
+    autoCenter: Phaser.Scale.CENTER_VERTICALLY,
     zoom: computeZoom(WIDTH, HEIGHT, window.innerWidth, window.innerHeight),
     canvas,
     scene: [
         // TiledTest
+        MainGame,
         InitScene,
-        ECSTest,
         PauseScene,
     ],
     // antialias: false,
@@ -36,7 +38,10 @@ const config = {
     fps: {
         target: 60,
         forceSetTimeOut: true
-    }
+    },
+    plugins: {
+        global: [{ key: 'NinePatchPlugin', plugin: NinePatchPlugin, start: true }],
+    },
 
     // pipeline: { name: 'ShaderFX', pipeline: ShaderFX },
 }

@@ -65,7 +65,7 @@ export default class ECSTest extends GameScene<SystemSets> {
     }
 
     preload(): void {
-        this.load.image("tree", Assets.art.tree)
+        // this.load.image("tree", Assets.art.tree)
         // this.load.audio("click", Assets.audio.click)
 
         this.cameras.main.setPostPipeline(ShaderFX)
@@ -157,7 +157,7 @@ function treeSystem([sprite, body]: [GameObjects.Sprite, planck.Body]): void {
 
 function bodyKeySystem([body]: [planck.Body], [push]: [Push]): void {
     if (push.push) {
-        console.log("pushed")
+        // console.log("pushed")
         const dx = Math.random() * 1000 - 500
         const dy = Math.random() * 1000 - 500
 

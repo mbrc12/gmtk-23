@@ -17,6 +17,7 @@ export class PauseScene extends Phaser.Scene {
     create() {
         this.input.once("pointerdown", () => {
             const lastScene = this.registry.get(LAST_SCENE_KEY) as string
+            this.input.mouse?.requestPointerLock()
             this.scene.resume(lastScene)
             this.scene.stop()
         })
@@ -25,13 +26,13 @@ export class PauseScene extends Phaser.Scene {
         bg.setOrigin(0, 0)
         bg.depth = 0
         
-        const flair = this.add.bitmapText(0, 0, "default", "rest, my friend ...", 20)
+        const flair = this.add.bitmapText(0, 0, "default", "infection is hard work ... rest for now", 20)
         flair.setTint(FLAIR_COLOR)
         flair.setOrigin(0.5, 0.5)
         flair.setPosition(WIDTH/2, 2 * HEIGHT/5)
         flair.depth = 1
 
-        const text = this.add.bitmapText(0, 0, "default", "click here to resume", 20)
+        const text = this.add.bitmapText(0, 0, "default", "click to resume", 20)
         text.setTint(FG_COLOR)
         text.setOrigin(0.5, 0.5)
         text.setPosition(WIDTH/2, 4 * HEIGHT/5)

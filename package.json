@@ -13,8 +13,12 @@
     "vite": "^4.3.9"
   },
   "dependencies": {
+    "@koreez/phaser3-ninepatch": "^2.0.2",
+    "@types/seedrandom": "^3.0.5",
     "bitecs": "^0.3.38",
     "phaser": "^3.60.0",
-    "planck": "^1.0.0-alpha.4"
+    "planck": "^1.0.0-alpha.4",
+    "random": "^4.1.0",
+    "seedrandom": "^3.0.5"
   }
 }
