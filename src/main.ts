@@ -7,6 +7,7 @@ import { PauseScene } from './scenes/pause';
 import { InitScene } from './scenes/init';
 import MainGame from './scenes/game';
 import { NinePatchPlugin } from '@koreez/phaser3-ninepatch';
+import { GameOverScene } from './scenes/game-over';
 // import TiledTest from './scenes/tiled-test';
 
 
@@ -26,9 +27,10 @@ const config = {
     canvas,
     scene: [
         // TiledTest
-        MainGame,
         InitScene,
+        MainGame,
         PauseScene,
+        GameOverScene
     ],
     // antialias: false,
     pixelArt: true,

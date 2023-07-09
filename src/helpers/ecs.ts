@@ -1,5 +1,6 @@
-import { addComponent, ComponentType, defineComponent, IWorld, Query, Types }  from "bitecs";
+import { addComponent, ComponentType, defineComponent, hasComponent, IWorld, Query, removeComponent, Types }  from "bitecs";
 import { Store } from ".";
+
 
 export type GameQuery<T extends unknown[]> = {
     ecs: IWorld,
@@ -9,7 +10,7 @@ export type GameQuery<T extends unknown[]> = {
 }
 
 export type RawSystem<T extends unknown[], U extends unknown[]> = 
-    (components: T, resources: U) => void
+    (components: T, resources: U) => undefined | boolean
 
 // The first kind doesnt have any local data, the second one uses some local data
 // which is in the fields other than run.
@@ -54,6 +55,16 @@ export class StoredComponent<T> {
         addComponent(this.ecs, this.component, eid)
         this.component.id[eid] = ptr
     }
+
+    check(eid: number): boolean {
+        return hasComponent(this.ecs, this.component, eid)
+    }
+
+    removeFrom(eid: number) {
+        const ptr = this.component.id[eid]
+        this.store.delete(ptr)
+        removeComponent(this.ecs, this.component, eid)
+    }
 }
 
 // [T1, T2] => [StoredComponent<T1>, StoredComponent<T2>]
@@ -76,3 +87,4 @@ export class Resource<U> {
 }
 
 export type ResourceList<U extends unknown[]> = { [K in keyof U]: Resource<U[K]> }
+

@@ -15,7 +15,7 @@ export function getObjectLayer(key: string, map: Tilemaps.Tilemap):
     return objects
 }
 
-export function extractCollisionObjects(scene: GameScene, layer: Tilemaps.TilemapLayer): void {
+export function extractCollisionObjects<SV>(scene: GameScene<SV>, layer: Tilemaps.TilemapLayer): void {
     const width = layer.width;
     const height = layer.height;
 
@@ -29,7 +29,7 @@ export function extractCollisionObjects(scene: GameScene, layer: Tilemaps.Tilema
     }
 }
 
-export function getCollidersOfTile(scene: GameScene, tile: Tilemaps.Tile): planck.Body[] {
+export function getCollidersOfTile<SV>(scene: GameScene<SV>, tile: Tilemaps.Tile): planck.Body[] {
     const tx = tile.pixelX;
     const ty = tile.pixelY;
     const tw = tile.width;

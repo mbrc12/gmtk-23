@@ -2,8 +2,10 @@ import { HEIGHT, LAST_SCENE_KEY, WIDTH } from "../globals";
 import { Assets } from "../assets";
 
 const BG_COLOR = 0x101518
-const FG_COLOR = 0x7894A5
-const FLAIR_COLOR = 0xCAE2BC
+const FG_COLOR = 0x827094
+const CREDITS_COLOR = 0xCAE2BC
+const TITLE_COLOR = 0xcd6093
+const FLAIR_COLOR = 0xa93b3b
 
 export class PauseScene extends Phaser.Scene {
     constructor() {
@@ -17,7 +19,6 @@ export class PauseScene extends Phaser.Scene {
     create() {
         this.input.once("pointerdown", () => {
             const lastScene = this.registry.get(LAST_SCENE_KEY) as string
-            this.input.mouse?.requestPointerLock()
             this.scene.resume(lastScene)
             this.scene.stop()
         })

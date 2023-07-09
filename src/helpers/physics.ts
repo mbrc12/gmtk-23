@@ -2,7 +2,7 @@ import { Polygon, Vec2 } from "planck";
 import { GameScene } from ".";
 import { DEBUG_DEPTH, DEBUG_STROKE_ALPHA, DEBUG_STROKE_COLOR, DEBUG_STROKE_COLOR_ASLEEP, DEBUG_STROKE_WIDTH, HEIGHT, WALL_LAYER, WALL_MASK, WIDTH } from "../globals";
 
-export function debugRender(scene: GameScene): void {
+export function debugRender<SV>(scene: GameScene<SV>): void {
     for (var body = scene.world.getBodyList(); body; body = body.getNext()) {
         let bodyPosition = body.getPosition()
 
@@ -48,7 +48,7 @@ export function rectangle(x: number, y: number, width: number, height: number): 
     return new Polygon([Vec2(x, y), Vec2(x + width, y), Vec2(x + width, y + height), Vec2(x, y + height)])
 }
 
-export function addWalls(scene: GameScene) {
+export function addWalls<SV>(scene: GameScene<SV>) {
     const walls = scene.world.createKinematicBody({
         position: Vec2(0, 0)
     })

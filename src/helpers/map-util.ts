@@ -5,7 +5,7 @@ import rng from "./rng"
 export const MAP_BLOCK = 48
 const MAP_BOT_Y = 3 * HEIGHT / 4
 
-export const MAP_WIDTH = 100
+export const MAP_WIDTH = 300
 
 const HOSPITAL_SPRITE_WIDTH = 144
 const HOSPITAL_SPRITE_HEIGHT = 64
@@ -17,7 +17,11 @@ const BUILDING_TOP_HEIGHT = 16
 const SKY_WIDTH = 64
 const MAP_WIDTH_SKIES = MAP_WIDTH * MAP_BLOCK / SKY_WIDTH
 
-const BUILDING_TOP_CHOICES = ["building-top-1", "building-top-2", "building-top-3", "building-top-4", "building-top-5"]
+const BUILDING_TOP_CHOICES = 
+    ["building-top-1", "building-top-2", 
+        "building-top-3", "building-top-4", 
+        "building-top-5"]
+
 const BUILDING_BODY_CHOICES = ["building-body", "building-body-2"]
 
 export type BlockData = {
@@ -46,6 +50,7 @@ export function generateMap(scene: Scene): MapData {
         sky.setOrigin(0, 0)
         sky.setDepth(SKY_DEPTH)
         skies.push(sky)
+        sky.setScrollFactor(0.6)
     }
 
     const roads: GameObjects.Sprite[] = []
@@ -125,13 +130,13 @@ export function generateMap(scene: Scene): MapData {
     }
 }
 
-function range(x: number, y: number): Array<number> {
-    const arr: number[] = [];
-    for (let i = x; i < y; i++) {
-        arr.push(i)
-    }
-    return arr
-}
+// function range(x: number, y: number): Array<number> {
+//     const arr: number[] = [];
+//     for (let i = x; i < y; i++) {
+//         arr.push(i)
+//     }
+//     return arr
+// }
 
 function biasedChoice<T>(xs: T[]): T {
     let v = rng.float(0, 1)

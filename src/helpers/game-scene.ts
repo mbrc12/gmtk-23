@@ -20,21 +20,32 @@ export abstract class GameScene<SV> extends Scene {
     systems: System<any, any, SV>[] = []
     physicsSystems: System<any, any, SV>[] = []
 
-    _sceneName: string
-    _defaultSystemSet: SV
+    active: Map<SV, boolean>
+
+    private sceneName: string
+    private toClean: number[] 
+    private defaultSystemSet: SV
+    private components: StoredComponent<any>[]
 
     protected constructor(name: string, gravity: Vec2, defaultSystemSet: SV) {
         super(name)
-        this._sceneName = name
-        this._defaultSystemSet = defaultSystemSet
+
+        this.sceneName = name
+        this.defaultSystemSet = defaultSystemSet
+        this.toClean = []
+        this.components = []
 
         this.world = new World(new Vec2(gravity))
         this.ecs = bitecs.createWorld()
         this.store = new Store()
+
+        this.active = new Map()
     }
 
     protected registerComponent<T>(): StoredComponent<T> {
-        return new StoredComponent<T>(this.ecs, this.store)
+        const component = new StoredComponent<T>(this.ecs, this.store)
+        this.components.push(component)
+        return component
     }
 
     protected registerResource<U>(): Resource<U> {
@@ -61,7 +72,7 @@ export abstract class GameScene<SV> extends Scene {
 
         let modifiedConfig = {...defaultSystemConfig, ...config}
         if (!modifiedConfig.systemSet) {
-            modifiedConfig.systemSet = this._defaultSystemSet
+            modifiedConfig.systemSet = this.defaultSystemSet
         }
 
         const item: System<T, U, SV> = {
@@ -97,7 +108,11 @@ export abstract class GameScene<SV> extends Scene {
     }
 
     runSystems(systems: System<any, any, SV>[]): void {
-        systems.forEach(({query, resources, isStatic, callback}) => {
+        systems.forEach(({query, resources, isStatic, callback, systemSet}) => {
+            
+            if (this.active.has(systemSet) && this.active.get(systemSet) == false) {
+                return
+            } 
 
             const run = ("run" in callback) ? callback.run.bind(callback) : callback;
 
@@ -110,14 +125,35 @@ export abstract class GameScene<SV> extends Scene {
             query.ask().forEach((eid) => {
                 const components = query.components.map((comp) => comp.get(eid))
                 const resourceList = resources.map((res) => res.get())
-                run(components, resourceList)
+                const output = run(components, resourceList)
+
+                if (output) { // obsolete id
+                    this.toClean.push(eid) 
+                }
             })
         })
     }
 
     update(_time: number, _delta: number): void {
-        this.registry.set(LAST_SCENE_KEY, this._sceneName)
+        this.registry.set(LAST_SCENE_KEY, this.sceneName)
         this.runSystems(this.systems)
+        this.__clean()
+    }
+
+    private __clean() {
+        this.toClean.forEach((eid) => {
+            console.log("Cleaned .. " + eid)
+            this.components.forEach((comp) => {
+                if (comp.check(eid)) {
+                    const item = comp.get(eid)
+                    if (item["destroy"] != undefined) {
+                        item.destroy()
+                    }
+                    comp.removeFrom(eid)
+                }
+            })
+        })
+        this.toClean = []
     }
 
     physicsUpdate(): void {
