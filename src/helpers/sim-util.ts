@@ -64,6 +64,10 @@ export class CityInfo {
         this.nextMinor += Math.max(rng.exponential(RATE_MINOR)(), LEAST_GAP_MINOR)
     }
 
+    registerHome() {
+        this.total --
+    }
+
     registerRIP(x: number) {
         if (0 < x && x < SIZE) {
             const i = Math.floor(x)
@@ -77,9 +81,6 @@ export class CityInfo {
         this.total --
     }
 
-    registerHome() {
-        this.total --
-    }
 
     sampleEvt(currentX: number): number { 
         let sum = 0

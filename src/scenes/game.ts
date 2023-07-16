@@ -13,7 +13,6 @@ import { Progress, updateProgress } from "../helpers/progress-util";
 import { CityInfo, generateHuman, healthSystem } from "../helpers/sim-util";
 import rng from "../helpers/rng";
 
-
 //////
 
 
@@ -106,7 +105,7 @@ export default class MainGame extends GameScene<SystemSets> {
         this.rKeys = this.registerResource<KeyboardManager<KT>>()
         this.rTime = this.registerResource<Time>()
         this.rGameOver = this.registerResource<GameOver>()
-        this.rGameOver.set({over: false, reason: ""})
+        this.rGameOver.set({ over: false, reason: "" })
 
         this.rCounters = this.registerResource<Counters>()
 
@@ -127,34 +126,33 @@ export default class MainGame extends GameScene<SystemSets> {
         this.cHumanSprite = this.registerComponent<HumanSprite>()
         this.cProgress = this.registerComponent<Progress>()
 
-        this.system([], [this.rCityInfo, this.rScene], 
-                    citySystem, { static: true })
-                    this.system([], [this.rGameOver, this.rScene], gameOverSystem, { static: true, systemSet: "ui" })
-                    this.system([], [this.rKeys, this.rScene], pauseSystem, { static: true, systemSet: "ui" } )
-                    this.system([], [this.rStatus], statusSystem, { static: true, systemSet: "ui" })
-                    this.system([], [this.rTime, this.rScene], timeSystem, { static: true, systemSet: "ui" })
-                    this.system([], [this.rStats, this.rStatus, this.rGameOver], potencySystem, { static: true, systemSet: "ui" })
+        this.system([], [this.rCityInfo, this.rScene],
+            citySystem, { static: true })
+        this.system([], [this.rGameOver, this.rScene], gameOverSystem, { static: true, systemSet: "ui" })
+        this.system([], [this.rKeys, this.rScene], pauseSystem, { static: true, systemSet: "ui" })
+        this.system([], [this.rStatus], statusSystem, { static: true, systemSet: "ui" })
+        this.system([], [this.rTime, this.rScene], timeSystem, { static: true, systemSet: "ui" })
+        this.system([], [this.rStats, this.rStatus, this.rGameOver], potencySystem, { static: true, systemSet: "ui" })
 
-                    this.system([this.cSpec, this.cHumanSprite], 
-                                [this.rTime, this.rStatus, this.rStats, this.rGameOver, this.rCityInfo], 
-                                humanPositionSystem)
+        this.system([this.cSpec, this.cHumanSprite],
+            [this.rTime, this.rStatus, this.rStats, this.rGameOver, this.rCityInfo],
+            humanPositionSystem)
 
-                                this.system([this.cSpec, this.cHumanSprite], 
-                                            [this.rScene, this.rStats, this.rPointer, this.rTime, this.rStatus], 
-                                            humanSpriteSystem)
+        this.system([this.cSpec, this.cHumanSprite],
+            [this.rScene, this.rStats, this.rPointer, this.rTime, this.rStatus],
+            humanSpriteSystem)
+        this.system([], [this.rStats, this.rCounters, this.rHumans], counterSystem)
 
-                                            this.system([], [this.rStats, this.rCounters, this.rHumans], counterSystem)
+        this.system([this.cSpec], [this.rScene, this.rStats], humanDoorClose)
 
-                                            this.system([this.cSpec], [this.rScene, this.rStats], humanDoorClose)
+        this.system([this.cSpec], [this.rStats, this.rCityInfo], healthSystem)
 
-                                            this.system([this.cSpec], [this.rStats, this.rCityInfo], healthSystem)
-
-                                            this.system([this.cSpec, this.cHumanSprite], 
-                                                        [this.rStatus, this.rStats, this.rScene, this.rGameOver, this.rCityInfo], 
-                                                        humanRIPSystem)
+        this.system([this.cSpec, this.cHumanSprite],
+            [this.rStatus, this.rStats, this.rScene, this.rGameOver, this.rCityInfo],
+            humanRIPSystem)
 
 
-                                                        this.system([this.cProgress], [], updateProgress)
+        this.system([this.cProgress], [], updateProgress)
 
     }
 
@@ -212,11 +210,11 @@ export default class MainGame extends GameScene<SystemSets> {
 
         this.rScene.set(this)
         this.rKeys.set(setupKeyboardInput(this, keySpec))
-        this.rTime.set({now: 0})
+        this.rTime.set({ now: 0 })
 
-        this.rStats.set({potency: 1, potencyWarning: false, infected: 0})
+        this.rStats.set({ potency: 1, potencyWarning: false, infected: 0 })
 
-        this.rPointer.set({x: 0, enabled: true})
+        this.rPointer.set({ x: 0, enabled: true })
 
         this.rStatus.set(new StatusText(this.add.dynamicBitmapText(0, 0, "default", "", STATUS_SIZE)))
         this.rStatus.get().message("you are currently infecting this person. click to jump to new host")
@@ -232,21 +230,21 @@ export default class MainGame extends GameScene<SystemSets> {
 
         this.anims.create({
             key: "walk",
-            frames: this.anims.generateFrameNumbers("legs", {start: 0, end: 7}),
+            frames: this.anims.generateFrameNumbers("legs", { start: 0, end: 7 }),
             frameRate: 15,
             repeat: -1
         })
 
         this.anims.create({
             key: "chaos-anim",
-            frames: this.anims.generateFrameNumbers("chaos", {start: 0, end: 2}),
+            frames: this.anims.generateFrameNumbers("chaos", { start: 0, end: 2 }),
             frameRate: 15,
             repeat: -1
         })
 
         this.anims.create({
             key: "rip",
-            frames: this.anims.generateFrameNumbers("rip", {start: 0, end: 9}),
+            frames: this.anims.generateFrameNumbers("rip", { start: 0, end: 9 }),
             frameRate: 15,
             // repeat: -1
         })
@@ -306,9 +304,9 @@ function pointerEventCallback(this: MainGame, pointer: Input.Pointer) {
 
             if (stats.selecting && !stats.selecting.disabled) {
                 if (stats.current) {
-                    const covid = this.add.sprite(stats.current.x + COVID_OFFSET_X, 
-                                                  stats.current?.y + COVID_OFFSET_Y, 
-                    "covid")
+                    const covid = this.add.sprite(stats.current.x + COVID_OFFSET_X,
+                        stats.current?.y + COVID_OFFSET_Y,
+                        "covid")
                     covid.setDepth(HUMAN_DEPTH)
                     this.tweens.add({
                         targets: covid,
@@ -332,7 +330,7 @@ function pointerEventCallback(this: MainGame, pointer: Input.Pointer) {
 
                 this.tweens.add({
                     targets: this.cameras.main,
-                    scrollX: stats.current.x - this.cameras.main.width/2,
+                    scrollX: stats.current.x - this.cameras.main.width / 2,
                     ease: 'sine.inout',
                     duration: TRANSITION_DURATION,
                     onComplete: () => {
@@ -407,13 +405,13 @@ function counterSystem([]: [], [stats, counters, humans]: [Stats, Counters, Set<
         } else {
             return x + 1
         }
-    })    
+    })
 
     const potencyCounter = counters.potency
 
     potencyCounter.setDepth(UI_DEPTH)
-    potencyCounter.setText(padString("potency:", PADDED) + 
-                           Math.round(100 * Math.max(stats.potency - 0.1, 0)/0.9) + " %")
+    potencyCounter.setText(padString("potency:", PADDED) +
+        Math.round(100 * Math.max(stats.potency - 0.1, 0) / 0.9) + " %")
     potencyCounter.setOrigin(0, 0)
     potencyCounter.setScrollFactor(0, 0)
     potencyCounter.setY(HEIGHT - homeDist.height - potencyCounter.height)
@@ -421,8 +419,8 @@ function counterSystem([]: [], [stats, counters, humans]: [Stats, Counters, Set<
     const healthCounter = counters.hostHealth
 
     healthCounter.setDepth(UI_DEPTH)
-    healthCounter.setText(padString("host-health:", PADDED) + 
-                           Math.round(100 * Math.max(stats.current!.health - HEALTH_NONE, 0)/(1 - HEALTH_NONE)) + " %")
+    healthCounter.setText(padString("host-health:", PADDED) +
+        Math.round(100 * Math.max(stats.current!.health - HEALTH_NONE, 0) / (1 - HEALTH_NONE)) + " %")
     healthCounter.setOrigin(0, 0)
     healthCounter.setScrollFactor(0, 0)
     healthCounter.setY(HEIGHT - homeDist.height - potencyCounter.height - healthCounter.height)
@@ -452,7 +450,7 @@ function potencySystem([]: [], [stats, status, gameOver]: [Stats, StatusText, Ga
     if (stats.potency < POTENCY_LOW && !stats.potencyWarning) {
         status.message("your potency is low, switch to weaker hosts")
         stats.potencyWarning = true
-    } 
+    }
 
     if (stats.potency > POTENCY_LOW) {
         stats.potencyWarning = false
@@ -470,7 +468,7 @@ const FLASH_DURATION = 500
 function gameOverSystem([]: [], [gameOver, scene]: [GameOver, MainGame]): undefined {
     if (gameOver.over) {
         gameOver.over = false
-        scene.active.set("default", false) 
+        scene.active.set("default", false)
         scene.cameras.main.flash(FLASH_DURATION, 255, 0, 0)
         scene.registry.set("reason", gameOver.reason)
         setTimeout(() => {
@@ -481,7 +479,7 @@ function gameOverSystem([]: [], [gameOver, scene]: [GameOver, MainGame]): undefi
     }
 }
 
-const SPACE_RATIO = 4/6
+const SPACE_RATIO = 4 / 6
 function padString(s: string, len: number): string {
     let total = 0
     for (let i = 0; i < s.length; i++) {
@@ -490,6 +488,6 @@ function padString(s: string, len: number): string {
         }
         else total += 1
     }
-let rem = len - total
-return s.padEnd(s.length + rem / SPACE_RATIO)
+    let rem = len - total
+    return s.padEnd(s.length + rem / SPACE_RATIO)
 }

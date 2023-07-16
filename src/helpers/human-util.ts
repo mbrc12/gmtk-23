@@ -70,7 +70,7 @@ export class HumanSprite {
     }
 }
 
-export function setHumanSpritePosition(human: HumanSprite, x: number, y: number, v: number) {
+export function setHumanSpritePosition(human: HumanSprite, x: number, y: number, v: number): void {
     if (v < 0) {
         human.head.setFlipX(true)
         human.body.setFlipX(true)
@@ -126,183 +126,180 @@ export function spawnHuman(scene: MainGame, human: HumanSpec, setCurrent?: boole
 }
 
 export function humanPositionSystem([spec, sprite]: [HumanSpec, HumanSprite],
-                                    [time, status, stats, gameOver, city]:
-                                        [Time, StatusText, Stats, GameOver, CityInfo])
-                                            : true | undefined {
-                                                if (spec.endTime && time.now >= spec.endTime) {
-                                                    return true
-                                                }
+    [time, status, stats, gameOver, city]:
+        [Time, StatusText, Stats, GameOver, CityInfo])
+    : true | undefined {
+    if (spec.endTime && time.now >= spec.endTime) {
+        return true
+    }
 
-                                                if (Math.abs(spec.destination - spec.x) < DESTINATION_CLOSENESS) {
-                                                    if (!spec.endTime) {
-                                                        sprite.legs.stop()
-                                                        sprite.legs.setTexture("legs", 4)
-                                                        spec.endTime = time.now + HOME_WAIT_TIME
-                                                        city.registerHome()
+    if (Math.abs(spec.destination - spec.x) < DESTINATION_CLOSENESS) {
+        if (!spec.endTime) {
+            sprite.legs.stop()
+            sprite.legs.setTexture("legs", 4)
+            spec.endTime = time.now + HOME_WAIT_TIME
+            city.registerHome()
 
-                                                        if (spec === stats.current) {
-                                                            status.message("your host has reached a hospital, gg")
-                                                            gameOver.over = true
-                                                            gameOver.reason = "your host reached a hospital"
-                                                        }
-                                                    }
-                                                    return
-                                                }
+            if (spec === stats.current) {
+                status.message("your host has reached a hospital, gg")
+                gameOver.over = true
+                gameOver.reason = "your host reached a hospital"
+            }
+        }
+        return
+    }
 
-                                                let v = spec.speed * Math.sign(spec.destination - spec.x)
-                                                spec.x += v
-                                                setHumanSpritePosition(sprite, spec.x, spec.y, v)
-                                            }
+    let v = spec.speed * Math.sign(spec.destination - spec.x)
+    spec.x += v
+    setHumanSpritePosition(sprite, spec.x, spec.y, v)
+}
 
-                                            export function humanRIPSystem([spec, sprite]: [HumanSpec, HumanSprite],
-                                                                           [status, stats, scene, gameOver, city]:
-                                                                               [StatusText, Stats, Scene, GameOver, CityInfo]): true | undefined {
-
-
-                                                                               if (spec.health < HEALTH_NONE) {
-                                                                                   spec.disabled = true
-                                                                                   city.registerRIP(sprite.head.x)
-
-                                                                                   if (!spec.ripStarted) {
-
-                                                                                       if (spec === stats.current) {
-                                                                                           status.message("your host died, gg")
-                                                                                           gameOver.over = true
-                                                                                           gameOver.reason = "your host died"
-                                                                                           scene.sound.play("ripsfx")
-                                                                                       } else if (stats.current && Math.abs(spec.x - stats.current.x) < AUDIO_DISTANCE) {
-                                                                                           scene.sound.play("ripsfx-muted")
-                                                                                       }
-
-                                                                                       spec.ripStarted = true
-                                                                                       sprite.body.setVisible(false)
-                                                                                       sprite.legs.setVisible(false)
-                                                                                       sprite.chaos?.setVisible(false)
-                                                                                       // sprite.select?.setVisible(false)
-                                                                                       // sprite.current?.setVisible(false)
-                                                                                       sprite.sign?.setVisible(false)
-
-                                                                                       // sprite.head.setTint(0xffffff)
-
-                                                                                       sprite.head.play("rip")
-                                                                                       sprite.head.on(Phaser.Animations.Events.ANIMATION_COMPLETE, () => {
-                                                                                           spec.ripPlayed = true
-                                                                                           sprite.head.setVisible(false)
-                                                                                           const skull = scene.add.sprite(sprite.head.x + SKULL_X_OFFSET, SKULL_Y, "skull")
-                                                                                           skull.setDepth(SKULL_DEPTH)
-                                                                                       })
-                                                                                   }
-                                                                               }
-
-                                                                               if (spec.ripPlayed) {
-                                                                                   return true
-                                                                               }
-                                                                           }
-
-                                                                           export function humanDoorClose([spec]: [HumanSpec], [scene, stats]: [Scene, Stats]): undefined {
-                                                                               if (stats.current && Math.abs(spec.x - stats.current.x) >= AUDIO_DISTANCE) {
-                                                                                   return
-                                                                               }
-                                                                               if (spec.endTime && !spec.doorClosed) {
-                                                                                   spec.disabled = true
-                                                                                   if (spec === stats.current) {
-                                                                                       scene.sound.play("door-close")
-                                                                                   } else {
-                                                                                       scene.sound.play("door-close-muted")
-                                                                                   }
-                                                                                   spec.doorClosed = true
-                                                                               }
-                                                                           }
-
-                                                                           export function humanSpriteSystem(
-                                                                               [spec, sprite]: [HumanSpec, HumanSprite],
-                                                                               [scene, stats, pointer, time, status]: [Scene, Stats, PointerData, Time, StatusText]): undefined {
-
-                                                                                   const inZone = sprite.zone.getBounds().contains(pointer.x, sprite.body.y + 5);
-
-                                                                                   const mode: SignType | undefined = (() => {
-                                                                                       if (spec === stats.current) {
-                                                                                           return "current"
-                                                                                       }
-                                                                                       if (!inZone && stats.selecting === spec) {
-                                                                                           return undefined
-                                                                                       }
-                                                                                       if (inZone && (spec.disabled || spec.isInfected)) {
-                                                                                           return "banned"
-                                                                                       }
-                                                                                       if (!inZone) {
-                                                                                           return "inert"
-                                                                                       }
-                                                                                       if (inZone && stats.selecting && stats.selecting !== spec) {
-                                                                                           return "inert"
-                                                                                       }
-                                                                                       return "selecting"
-                                                                                   })()
-
-                                                                                   if (mode == sprite.signType && (mode == "current" || mode == "banned")) {
-                                                                                       sprite.sign?.setPosition(sprite.head.x + COVID_OFFSET_X, sprite.head.y + COVID_OFFSET_Y)
-                                                                                   } else if (mode == "inert") {
-                                                                                       sprite.sign?.destroy()
-                                                                                   } else {
-                                                                                       if (mode == "selecting") {
-                                                                                           if (mode != sprite.signType || sprite.sign === undefined) {
-                                                                                               sprite.sign?.destroy()
-                                                                                               sprite.sign = scene.add.sprite(0, 0, "current")
-                                                                                               sprite.signType = "selecting"
-                                                                                               sprite.sign.setDepth(PROGRESS_DEPTH)
-                                                                                           }
-
-                                                                                           sprite.sign?.setPosition(sprite.head.x + COVID_OFFSET_X,
-                                                                                                                    sprite.head.y + COVID_OFFSET_Y +
-                                                                                                                        Math.sin(time.now / WAVE_SPEED) * WAVE_AMP)
-
-                                                                                                                    stats.selecting = spec
-
-                                                                                       } else {
-                                                                                           if (mode) {
-                                                                                               sprite.sign?.destroy()
-                                                                                               sprite.sign = scene.add.sprite(0, 0, mode == "current" ? "current" : "banned")
-                                                                                               sprite.sign.setDepth(PROGRESS_DEPTH)
+export function humanRIPSystem([spec, sprite]: [HumanSpec, HumanSprite],
+    [status, stats, scene, gameOver, city]:
+        [StatusText, Stats, Scene, GameOver, CityInfo]): true | undefined {
 
 
-                                                                                               sprite.sign.setPosition(sprite.head.x + COVID_OFFSET_X, sprite.head.y + COVID_OFFSET_Y)
-                                                                                               if (mode == "current") {
-                                                                                                   scene.cameras.main.startFollow(sprite.head)
-                                                                                               }
-                                                                                           } else {
-                                                                                               sprite.sign?.destroy()
-                                                                                               stats.selecting = undefined
-                                                                                           }
-                                                                                       }
-                                                                                   }
+    if (spec.health < HEALTH_NONE) {
+        spec.disabled = true
+        city.registerRIP(sprite.head.x)
 
-                                                                                   sprite.signType = mode
+        if (!spec.ripStarted) {
 
-                                                                                   if (spec.health < HEALTH_THRESHOLD) {
-                                                                                       // sprite.head.setTint(LOW_HEALTH_COLOR)
-                                                                                       if (!sprite.chaos) {
-                                                                                           if (spec === stats.current) {
-                                                                                               status.message("your host is low on health, please change hosts")
-                                                                                           }
-                                                                                           sprite.chaos = scene.add.sprite(sprite.head.x, sprite.head.y, "chaos", 0)
-                                                                                           sprite.chaos.setOrigin(0, 0)
-                                                                                           sprite.chaos.play("chaos-anim")
-                                                                                       }
-                                                                                   } else {
-                                                                                       sprite.chaos?.setVisible(false)
-                                                                                       sprite.chaos?.destroy()
-                                                                                       sprite.chaos = undefined
-                                                                                   }
+            if (spec === stats.current) {
+                status.message("your host died, gg")
+                gameOver.over = true
+                gameOver.reason = "your host died"
+                scene.sound.play("ripsfx")
+            } else if (stats.current && Math.abs(spec.x - stats.current.x) < AUDIO_DISTANCE) {
+                scene.sound.play("ripsfx-muted")
+            }
 
-                                                                                   if (spec.isInfected) {
-                                                                                       if (spec.isMasked) {
-                                                                                           sprite.head.setTexture("head-mask-infected")
-                                                                                       } else {
-                                                                                           sprite.head.setTexture("head-infected")
+            spec.ripStarted = true
+            sprite.body.setVisible(false)
+            sprite.legs.setVisible(false)
+            sprite.chaos?.setVisible(false)
+            // sprite.select?.setVisible(false)
+            // sprite.current?.setVisible(false)
+            sprite.sign?.setVisible(false)
 
-                                                                                       }
-                                                                                   }
-                                                                               }
+            // sprite.head.setTint(0xffffff)
+
+            sprite.head.play("rip")
+            sprite.head.on(Phaser.Animations.Events.ANIMATION_COMPLETE, () => {
+                spec.ripPlayed = true
+                sprite.head.setVisible(false)
+                const skull = scene.add.sprite(sprite.head.x + SKULL_X_OFFSET, SKULL_Y, "skull")
+                skull.setDepth(SKULL_DEPTH)
+            })
+        }
+    }
+
+    if (spec.ripPlayed) {
+        return true
+    }
+}
+
+export function humanDoorClose([spec]: [HumanSpec], [scene, stats]: [Scene, Stats]): undefined {
+    if (stats.current && Math.abs(spec.x - stats.current.x) >= AUDIO_DISTANCE) {
+        return
+    }
+    if (spec.endTime && !spec.doorClosed) {
+        spec.disabled = true
+        if (spec === stats.current) {
+            scene.sound.play("door-close")
+        } else {
+            scene.sound.play("door-close-muted")
+        }
+        spec.doorClosed = true
+    }
+}
+
+export function humanSpriteSystem(
+    [spec, sprite]: [HumanSpec, HumanSprite],
+    [scene, stats, pointer, time, status]: [Scene, Stats, PointerData, Time, StatusText]): undefined {
+
+    const inZone = sprite.zone.getBounds().contains(pointer.x, sprite.body.y + 5);
+
+    const mode: SignType | undefined = (() => {
+        if (spec === stats.current) {
+            return "current"
+        }
+        if (!inZone && stats.selecting === spec) {
+            return undefined
+        }
+        if (inZone && (spec.disabled || spec.isInfected)) {
+            return "banned"
+        }
+        if (!inZone) {
+            return "inert"
+        }
+        if (inZone && stats.selecting && stats.selecting !== spec) {
+            return "inert"
+        }
+        return "selecting"
+    })()
+
+    if (mode == sprite.signType && (mode == "current" || mode == "banned")) {
+        sprite.sign?.setPosition(sprite.head.x + COVID_OFFSET_X, sprite.head.y + COVID_OFFSET_Y)
+    } else if (mode == "inert") {
+        sprite.sign?.destroy()
+    } else {
+        if (mode == "selecting") {
+            if (mode != sprite.signType || sprite.sign === undefined) {
+                sprite.sign?.destroy()
+                sprite.sign = scene.add.sprite(0, 0, "current")
+                sprite.signType = "selecting"
+                sprite.sign.setDepth(PROGRESS_DEPTH)
+            }
+
+            sprite.sign?.setPosition(sprite.head.x + COVID_OFFSET_X,
+                sprite.head.y + COVID_OFFSET_Y +
+                Math.sin(time.now / WAVE_SPEED) * WAVE_AMP)
+
+            stats.selecting = spec
+
+        } else {
+            if (mode) {
+                sprite.sign?.destroy()
+                sprite.sign = scene.add.sprite(0, 0, mode == "current" ? "current" : "banned")
+                sprite.sign.setDepth(PROGRESS_DEPTH)
 
 
+                sprite.sign.setPosition(sprite.head.x + COVID_OFFSET_X, sprite.head.y + COVID_OFFSET_Y)
+                if (mode == "current") {
+                    scene.cameras.main.startFollow(sprite.head)
+                }
+            } else {
+                sprite.sign?.destroy()
+                stats.selecting = undefined
+            }
+        }
+    }
 
+    sprite.signType = mode
+
+    if (spec.health < HEALTH_THRESHOLD) {
+        // sprite.head.setTint(LOW_HEALTH_COLOR)
+        if (!sprite.chaos) {
+            if (spec === stats.current) {
+                status.message("your host is low on health, please change hosts")
+            }
+            sprite.chaos = scene.add.sprite(sprite.head.x, sprite.head.y, "chaos", 0)
+            sprite.chaos.setOrigin(0, 0)
+            sprite.chaos.play("chaos-anim")
+        }
+    } else {
+        sprite.chaos?.setVisible(false)
+        sprite.chaos?.destroy()
+        sprite.chaos = undefined
+    }
+
+    if (spec.isInfected) {
+        if (spec.isMasked) {
+            sprite.head.setTexture("head-mask-infected")
+        } else {
+            sprite.head.setTexture("head-infected")
+
+        }
+    }
+}
